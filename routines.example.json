@@ -1,0 +1,9 @@
+{
+  "routines": [
+    {
+      "id": "example-daily-check",
+      "runAt": "2099-01-01T09:00:00.000Z",
+      "prompt": "Say hello and report that the routine runner works."
+    }
+  ]
+}
