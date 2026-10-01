@@ -16,7 +16,25 @@ export class FileMemoryStore {
   private async readAll(): Promise<Record<string, string>> {
     await this.ensure();
     const raw = await fs.readFile(this.filePath, "utf8");
-    return JSON.parse(raw) as Record<string, string>;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (
+        parsed === null ||
+        typeof parsed !== "object" ||
+        Array.isArray(parsed)
+      ) {
+        return {};
+      }
+      const out: Record<string, string> = {};
+      for (const [k, v] of Object.entries(parsed)) {
+        if (typeof v === "string") {
+          out[k] = v;
+        }
+      }
+      return out;
+    } catch {
+      return {};
+    }
   }
 
   private async writeAll(data: Record<string, string>): Promise<void> {

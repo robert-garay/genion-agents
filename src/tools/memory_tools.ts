@@ -2,8 +2,22 @@ import path from "node:path";
 import { FileMemoryStore } from "../memory/store.js";
 import type { RegisteredTool, ToolContext } from "../types.js";
 
+const MAX_KEY_LEN = 256;
+const MAX_VALUE_LEN = 64 * 1024;
+
 function storeFor(ctx: ToolContext): FileMemoryStore {
   return new FileMemoryStore(path.join(ctx.memoryDir, "memory.json"));
+}
+
+function validateKey(key: string): string | null {
+  const trimmed = key.trim();
+  if (!trimmed) {
+    return "invalid_key";
+  }
+  if (trimmed.length > MAX_KEY_LEN) {
+    return "key_too_long";
+  }
+  return null;
 }
 
 export const memoryGetTool: RegisteredTool = {
@@ -24,8 +38,12 @@ export const memoryGetTool: RegisteredTool = {
   },
   handler: async (args, ctx) => {
     const key = String(args.key ?? "");
-    const value = await storeFor(ctx).get(key);
-    return JSON.stringify({ key, value });
+    const keyErr = validateKey(key);
+    if (keyErr) {
+      return JSON.stringify({ error: keyErr });
+    }
+    const value = await storeFor(ctx).get(key.trim());
+    return JSON.stringify({ key: key.trim(), value });
   },
 };
 
@@ -48,8 +66,16 @@ export const memorySetTool: RegisteredTool = {
   },
   handler: async (args, ctx) => {
     const key = String(args.key ?? "");
+    const keyErr = validateKey(key);
+    if (keyErr) {
+      return JSON.stringify({ error: keyErr });
+    }
     const value = String(args.value ?? "");
-    await storeFor(ctx).set(key, value);
-    return JSON.stringify({ ok: true, key });
+    if (value.length > MAX_VALUE_LEN) {
+      return JSON.stringify({ error: "value_too_long" });
+    }
+    const trimmedKey = key.trim();
+    await storeFor(ctx).set(trimmedKey, value);
+    return JSON.stringify({ ok: true, key: trimmedKey });
   },
 };

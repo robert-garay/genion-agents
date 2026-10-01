@@ -7,7 +7,7 @@ Genion Agents is a Muse/Grok-Bot-class agent runtime: a loop that calls a model,
 ## MVP scope (this repo)
 
 - Agent turn loop (message → model → optional tool calls → reply)
-- Tool registry with JSON schemas and stub implementations: `fetch_url`, `read_file`, `memory_get`, `memory_set`
+- Tool registry with JSON schemas and handlers: `fetch_url`, `read_file`, `memory_get`, `memory_set`
 - File-backed memory under `.data/`
 - One routine type: scheduled entries in `.data/routines.json` (see `ARCHITECTURE.md`)
 - BYOK: bring your own OpenAI-compatible API key
@@ -49,9 +49,16 @@ With a valid key in `.env`:
 npm run demo
 ```
 
-The demo runs two scripted turns: store/read memory, then read `README.md` via `read_file`.
+The demo runs three turns in one session: memory set/get, `read_file` on `README.md`, then `fetch_url` on example.com.
 
 Without a key, the demo exits with a clear message (no synthetic LLM responses).
+
+Verify tools without an API key:
+
+```bash
+npm test
+npm run tools:smoke
+```
 
 ## Other scripts
 
