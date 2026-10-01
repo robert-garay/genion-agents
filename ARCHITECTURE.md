@@ -34,13 +34,19 @@ Adding a tool: implement `RegisteredTool` (definition + handler), register in th
 
 ## 4. Routines and wake
 
-**Routine type (implemented): scheduled manifest**
+**Routine type (implemented): cron + one-shot manifest**
 
 - File: `.data/routines.json` (copy from `routines.example.json` to seed)
-- Shape: `{ "routines": [{ "id", "runAt" (ISO time), "prompt", "done?" }] }`
-- Runner: `npm run routine:run` loads due entries, runs the agent loop with each prompt, marks `done`.
+- Shapes:
+  - Cron: `{ "id", "kind": "cron", "cron": "*/5 * * * *", "prompt", "quiet?", "lastRunAt?" }` (UTC, 5-field cron)
+  - One-shot: `{ "id", "runAt" (ISO time), "prompt", "done?", "quiet?" }`
+- Helpers: `npm run routine:add` writes/updates entries; `src/routines/cron.ts` parses schedules.
+- Run once: `npm run routine:run` loads due entries, runs the agent loop, delivers output, updates `lastRunAt` or `done`.
+- Delivery: `.data/routine-deliveries.jsonl` (append-only). Stdout unless `quiet: true`.
 
-**Wake (stub):** File-watch or webhook wake is not implemented. Documented target: external event enqueues a routine or injects a user message into the loop. Scheduled routines prove the "run later" path.
+**Wake (local MVP):** `npm run routine:watch` polls every `ROUTINE_POLL_MS` (default 30s) and calls the same runner. This only fires while the Node process stays up (your Mac awake, a terminal open, or a local launchd/cron job wrapping `routine:run`). There is no cloud scheduler in this repo yet.
+
+**Wake (future):** file-watch or webhook to enqueue work without polling.
 
 ## 5. Computer and browser path (thin)
 
@@ -62,7 +68,8 @@ For now, `fetch_url` covers read-only HTTP. Keep computer/browser behind the sam
 | Path | Role |
 |------|------|
 | `.data/memory.json` | Durable key-value memory |
-| `.data/routines.json` | Scheduled routines |
+| `.data/routines.json` | Cron and one-shot routines |
+| `.data/routine-deliveries.jsonl` | Routine run outputs |
 
 Both are gitignored. Secrets live only in `.env`.
 
