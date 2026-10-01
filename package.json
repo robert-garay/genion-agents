@@ -13,7 +13,7 @@
     "lint:fix": "biome check --write .",
     "demo": "tsx scripts/demo.ts",
     "tools:smoke": "tsx scripts/tools-smoke.ts",
-    "test": "node --import tsx --test test/**/*.test.ts",
+    "test": "tsx scripts/run-tests.ts",
     "routine:run": "tsx scripts/run-routines.ts"
   },
   "devDependencies": {
