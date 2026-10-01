@@ -9,7 +9,7 @@ Genion Agents is a Muse/Grok-Bot-class agent runtime: a loop that calls a model,
 - Agent turn loop (message → model → optional tool calls → reply)
 - Tool registry with JSON schemas and handlers: `fetch_url`, `read_file`, `memory_get`, `memory_set`
 - File-backed memory under `.data/`
-- One routine type: scheduled entries in `.data/routines.json` (see `ARCHITECTURE.md`)
+- One routine type: cron and one-shot entries in `.data/routines.json` (see `ARCHITECTURE.md`)
 - BYOK: bring your own OpenAI-compatible API key
 
 ## Out of scope (for now)
@@ -66,8 +66,26 @@ npm run tools:smoke
 npm run typecheck
 npm run lint
 npm run build
-npm run routine:run   # run due scheduled routines (needs API key)
+npm run routine:run   # run due routines once (needs API key)
+npm run routine:watch # poll and run due routines (needs API key; stays up locally)
+npm run routine:add -- --id my-cron --prompt "Your task" --cron "*/5 * * * *"
 ```
+
+### Cron routines (local MVP)
+
+1. Copy the example manifest: `mkdir -p .data && cp routines.example.json .data/routines.json`
+2. Edit schedules or add one with `npm run routine:add`.
+3. Start the watcher (runs only while this terminal/process is up, e.g. Mac awake):
+
+```bash
+npm run routine:watch
+```
+
+4. Results append to `.data/routine-deliveries.jsonl` and print to stdout unless `quiet: true`.
+
+One-shot check without an API key: `npm run routine:run -- --dry-run`
+
+**Limitation:** there is no hosted always-on scheduler yet. Use `routine:watch`, launchd, or cron on your machine to keep the runner alive.
 
 ## Layout
 

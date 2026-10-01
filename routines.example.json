@@ -1,9 +1,16 @@
 {
   "routines": [
     {
-      "id": "example-daily-check",
+      "id": "example-cron-every-five-min",
+      "kind": "cron",
+      "cron": "*/5 * * * *",
+      "prompt": "Say hello and report that the cron routine runner works.",
+      "quiet": false
+    },
+    {
+      "id": "example-one-shot",
       "runAt": "2099-01-01T09:00:00.000Z",
-      "prompt": "Say hello and report that the routine runner works."
+      "prompt": "One-time reminder at the scheduled ISO time."
     }
   ]
 }

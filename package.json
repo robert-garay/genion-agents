@@ -14,7 +14,9 @@
     "demo": "tsx scripts/demo.ts",
     "tools:smoke": "tsx scripts/tools-smoke.ts",
     "test": "tsx scripts/run-tests.ts",
-    "routine:run": "tsx scripts/run-routines.ts"
+    "routine:run": "tsx scripts/run-routines.ts",
+    "routine:watch": "tsx scripts/routine-watch.ts",
+    "routine:add": "tsx scripts/routine-add.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
