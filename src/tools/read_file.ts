@@ -1,23 +1,8 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import type { RegisteredTool, ToolContext } from "../types.js";
+import { resolveWithinWorkspace } from "./workspace_path.js";
 
 const MAX_BYTES = 128 * 1024;
-
-function resolveWithinWorkspace(
-  workspaceRoot: string,
-  relativePath: string,
-): string | null {
-  const normalized = path
-    .normalize(relativePath)
-    .replace(/^(\.\.(\/|\\|$))+/, "");
-  const full = path.resolve(workspaceRoot, normalized);
-  const rootResolved = path.resolve(workspaceRoot);
-  if (!full.startsWith(rootResolved + path.sep) && full !== rootResolved) {
-    return null;
-  }
-  return full;
-}
 
 export const readFileTool: RegisteredTool = {
   definition: {
@@ -40,7 +25,10 @@ export const readFileTool: RegisteredTool = {
     },
   },
   handler: async (args, ctx: ToolContext) => {
-    const rel = String(args.path ?? "");
+    const rel = String(args.path ?? "").trim();
+    if (!rel) {
+      return JSON.stringify({ error: "missing_path" });
+    }
     const full = resolveWithinWorkspace(ctx.workspaceRoot, rel);
     if (!full) {
       return JSON.stringify({ error: "path_outside_workspace" });

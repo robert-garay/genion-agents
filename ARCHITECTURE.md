@@ -11,7 +11,7 @@ The core is a turn loop in `src/agent/loop.ts`:
 3. If the model returns tool calls, run each through the registry and append tool results.
 4. Repeat until the model returns text with no tool calls, or until `maxTurns`.
 
-The demo in `scripts/demo.ts` exercises multiple turns including tool use.
+The demo in `scripts/demo.ts` exercises memory, `read_file`, and `fetch_url` in one session. `scripts/tools-smoke.ts` calls the same three capabilities directly (no model).
 
 ## 2. Tool registry
 
@@ -68,4 +68,4 @@ Both are gitignored. Secrets live only in `.env`.
 
 ## CI
 
-GitHub Actions runs `npm run typecheck` and `npm run lint` on push/PR.
+GitHub Actions runs `typecheck`, `lint`, `test`, and `tools:smoke` on push/PR.

@@ -19,10 +19,11 @@ async function main(): Promise<void> {
   }
 
   const tools = new ToolRegistry();
+  console.log(`Tools registered: ${tools.names().join(", ")}`);
   const toolContext = { workspaceRoot, memoryDir };
   let history: Message[] = [];
 
-  console.log("--- Turn 1: remember a fact via memory_set ---");
+  console.log("\n--- Turn 1: memory_set + memory_get ---");
   const turn1 = await runAgentTurn(
     'Use memory_set to store key "demo_user" with value "Alex". Then confirm with memory_get.',
     history,
@@ -31,7 +32,7 @@ async function main(): Promise<void> {
   history = turn1.messages.filter((m) => m.role !== "system");
   console.log(turn1.finalText);
 
-  console.log("\n--- Turn 2: read README from workspace ---");
+  console.log("\n--- Turn 2: read_file (README.md) ---");
   const turn2 = await runAgentTurn(
     "Use read_file on path README.md and summarize the mission in one sentence.",
     history,
@@ -40,7 +41,16 @@ async function main(): Promise<void> {
   history = turn2.messages.filter((m) => m.role !== "system");
   console.log(turn2.finalText);
 
-  console.log("\nDemo complete.");
+  console.log("\n--- Turn 3: fetch_url ---");
+  const turn3 = await runAgentTurn(
+    "Use fetch_url on https://example.com/ and say whether the page mentions Example Domain in one sentence.",
+    history,
+    { provider, tools, toolContext },
+  );
+  history = turn3.messages.filter((m) => m.role !== "system");
+  console.log(turn3.finalText);
+
+  console.log("\nDemo complete (memory, read_file, fetch_url in one session).");
 }
 
 main().catch((err) => {

@@ -16,5 +16,5 @@ export type {
   RoutineManifest,
   ScheduledRoutine,
 } from "./routines/scheduled.js";
-export { ToolRegistry } from "./tools/registry.js";
+export { DEFAULT_TOOLS, ToolRegistry } from "./tools/registry.js";
 export type { Message, ToolContext } from "./types.js";

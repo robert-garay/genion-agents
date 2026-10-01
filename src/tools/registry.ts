@@ -3,7 +3,7 @@ import { fetchUrlTool } from "./fetch_url.js";
 import { memoryGetTool, memorySetTool } from "./memory_tools.js";
 import { readFileTool } from "./read_file.js";
 
-const DEFAULT_TOOLS: RegisteredTool[] = [
+export const DEFAULT_TOOLS: RegisteredTool[] = [
   fetchUrlTool,
   readFileTool,
   memoryGetTool,
@@ -15,8 +15,20 @@ export class ToolRegistry {
 
   constructor(tools: RegisteredTool[] = DEFAULT_TOOLS) {
     for (const t of tools) {
-      this.byName.set(t.definition.function.name, t);
+      const name = t.definition.function.name;
+      if (this.byName.has(name)) {
+        throw new Error(`duplicate_tool_name: ${name}`);
+      }
+      this.byName.set(name, t);
     }
+  }
+
+  names(): string[] {
+    return [...this.byName.keys()].sort();
+  }
+
+  has(name: string): boolean {
+    return this.byName.has(name);
   }
 
   definitions(): ToolDefinition[] {
@@ -34,6 +46,11 @@ export class ToolRegistry {
     } catch {
       return JSON.stringify({ error: "invalid_arguments_json" });
     }
-    return tool.handler(args, ctx);
+    try {
+      return await tool.handler(args, ctx);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "tool_handler_failed";
+      return JSON.stringify({ error: message, tool: name });
+    }
   }
 }
